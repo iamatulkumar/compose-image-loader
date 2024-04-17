@@ -27,13 +27,54 @@ Configured Image request
 ```kotlin
  fetch(
     context,
-    data,
+    url, // image url
     onSuccess = {
         // Lamda function
     }, onError = {
          // Lamda function
     },
 )
+
+ @Composable
+    fun ImageItem(
+        data: String = "https://images.unsplash.com/photo-1550973886-796d048c599f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjU4MjM5fQ",
+        modifier: Modifier = Modifier.aspectRatio(1f),
+    ) {
+
+        val context = LocalContext.current
+
+        var isLoading by remember {
+            mutableStateOf<Boolean>(true)
+        }
+
+        var bitMap by remember {
+            mutableStateOf<Bitmap?>(null)
+        }
+
+        if(bitMap == null && isLoading) {
+            fetch(
+                context,
+                data,
+                onSuccess = {
+                        loadBitMap ->
+                    bitMap = loadBitMap
+                    isLoading = false
+                }, onError = {
+                    isLoading = false
+                },
+            )
+            }
+
+        Box(modifier, Alignment.Center) {
+            if(isLoading) {
+                CircularProgressIndicator()
+            } else {
+                bitMap?.also {loadedBitMap ->
+                    Image(bitmap = loadedBitMap.asImageBitmap(), contentDescription = "")
+                }
+            }
+        }
+    }
 ```
 
 ```
